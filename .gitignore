@@ -2,3 +2,4 @@
 *.session
 test.py
 texts
+config.json

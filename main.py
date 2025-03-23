@@ -1,6 +1,7 @@
 import asyncio
 import os
 import logging
+import json
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
 
@@ -13,26 +14,44 @@ load_dotenv()
 API_ID = os.getenv('API_ID')
 API_HASH = os.getenv('API_HASH')
 
-"""
-TODO: Add logic/modes - the first lists the IDs of the group chat and enables the user to choose which group chats to monitor,
-Add keyword manager that allows the user to choose which keywords will be monitored,
-A mode to determine where to forward those messages,
-and last is the active monitoring enabled mode. 
-"""
+# CONFIG FOR PERSISTENT STORAGE
+CONFIG_FILE = "config.json"
+
 def clear_terminal():
     if os.name == 'nt': # Windows
         os.system('cls') 
     else: # Mac and Linux, should be POSIX
         os.system('clear')
+    
+def load_config():
+    """Load monitored chats and keywords from config.json."""
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        # If file doesn't exist, return default empty config and initialize the config file
+        return {"chats": [], "keywords": []}
+    except json.JSONDecodeError:
+        print("Error: config.json is corrupted. Starting with empty config.")
+        return {"chats": [], "keywords": []}
+
+# SAVE CONFIG, CONFIG IS A DICT with chats and keywords keys and arrays as values
+def save_config(config):
+    return
 
 async def manage_chats(client):
-    print("Welcome to the chat manager!")
-    await asyncio.sleep(2)
-    print("Returning to control flow!")
+    # SAVE THE CLIENT'S DIALOGS INTO AN ARRAY
+    dialogs_arr = []
+    async for dialog in client.iter_dialogs():
+        dialogs_arr.append(dialog.entity)
+    print(dialogs_arr)
+    # WE WANT TO HAVE 
 
-
-def manage_keywords():
-    print("Welcome to the keyword manager!")
+async def manage_keywords():
+    # PRINT THE CURRENT KEYWORDS, PRINT NONE IF LEN() = 0
+    # Present add mode and remove mode, and return
+    # After add/remove, call save config
+    return
 
 async def run_bot(client):
     return
@@ -44,6 +63,13 @@ async def run_bot(client):
     # client.run_until_disconnected()
 
 async def main():
+
+    global config
+    global keywords
+
+    config = load_config()    
+    keywords = config["keywords"]
+
     async with TelegramClient(session='sesh', api_id=API_ID, api_hash=API_HASH) as client:
         while True:
 
@@ -65,7 +91,6 @@ async def main():
             else:
                 print("Invalid choice, choose 1-4.")
                 await asyncio.sleep(1)
-
 
 if __name__ == '__main__':
     asyncio.run(main())
